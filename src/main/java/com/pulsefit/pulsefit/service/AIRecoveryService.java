@@ -4,10 +4,12 @@ import com.pulsefit.pulsefit.ai.RecoveryAdvisor;
 import com.pulsefit.pulsefit.model.WorkoutTelemetryLog;
 import com.pulsefit.pulsefit.repository.WorkoutRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AIRecoveryService {
@@ -34,6 +36,15 @@ public class AIRecoveryService {
                 latest.getDurationSeconds()
         );
 
-        return recoveryAdvisor.generateRecoveryPlan(workoutContext);
+        try {
+            return recoveryAdvisor.generateRecoveryPlan(workoutContext);
+        } catch (Exception e) {
+            log.warn("Ollama LLM service unreachable on cloud deployment: {}", e.getMessage());
+            return String.format(
+                    "Workout data retrieved for %s (%s)! AI Coaching is currently offline on cloud environment. Connect local LLM or Groq API for live advice.",
+                    latest.getWorkoutType(),
+                    userEmail
+            );
+        }
     }
 }

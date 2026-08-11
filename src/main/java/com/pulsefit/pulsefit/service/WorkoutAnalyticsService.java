@@ -21,7 +21,11 @@ public class WorkoutAnalyticsService {
             Thread.currentThread().interrupt();
         }
 
-        double intensityIndex = (logData.getHeartRate() * logData.getDurationSeconds()) / 1000.0;
+        // Safe null handling to avoid NullPointerException
+        int heartRate = logData.getHeartRate() != null ? logData.getHeartRate() : 0;
+        long duration = logData.getDurationSeconds() != null ? logData.getDurationSeconds() : 0L;
+
+        double intensityIndex = (heartRate * duration) / 1000.0;
         log.info("[Virtual Thread: {}] Completed strain calculation! Strain Index: {}",
                 Thread.currentThread(), intensityIndex);
     }
